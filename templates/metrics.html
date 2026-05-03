@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Model Metrics{% endblock %}
+{% block content %}
+<section class="card">
+    <h2>Model Performance Metrics</h2>
+
+    {% if metrics %}
+    <div class="stats-grid">
+        <div class="stat-box">
+            <span>Accuracy</span>
+            <strong>{{ "%.2f"|format(metrics.accuracy * 100) }}%</strong>
+        </div>
+        <div class="stat-box">
+            <span>ROC-AUC</span>
+            <strong>{{ "%.2f"|format(metrics.roc_auc * 100) }}%</strong>
+        </div>
+        <div class="stat-box">
+            <span>Training Rows</span>
+            <strong>{{ metrics.train_rows }}</strong>
+        </div>
+        <div class="stat-box">
+            <span>Test Rows</span>
+            <strong>{{ metrics.test_rows }}</strong>
+        </div>
+    </div>
+
+    <h3>Classification Report</h3>
+    <div class="table-scroll">
+        <table>
+            <thead>
+                <tr>
+                    <th>Label</th>
+                    <th>Precision</th>
+                    <th>Recall</th>
+                    <th>F1-Score</th>
+                    <th>Support</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in report_rows %}
+                <tr>
+                    <td>{{ row.label }}</td>
+                    <td>{{ "%.4f"|format(row.precision) }}</td>
+                    <td>{{ "%.4f"|format(row.recall) }}</td>
+                    <td>{{ "%.4f"|format(row.f1_score) }}</td>
+                    <td>{{ row.support }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h3>Confusion Matrix</h3>
+    {% if metrics.confusion_matrix %}
+    <table>
+        <thead>
+            <tr>
+                <th></th>
+                <th>Predicted Non-Churn (0)</th>
+                <th>Predicted Churn (1)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>Actual Non-Churn (0)</th>
+                <td>{{ metrics.confusion_matrix[0][0] }}</td>
+                <td>{{ metrics.confusion_matrix[0][1] }}</td>
+            </tr>
+            <tr>
+                <th>Actual Churn (1)</th>
+                <td>{{ metrics.confusion_matrix[1][0] }}</td>
+                <td>{{ metrics.confusion_matrix[1][1] }}</td>
+            </tr>
+        </tbody>
+    </table>
+    {% endif %}
+
+    <div class="stats-grid">
+        <div class="stat-box">
+            <span>Top Positive Churn Drivers</span>
+            {% if metrics.feature_importance and metrics.feature_importance.top_positive %}
+                {% for item in metrics.feature_importance.top_positive[:5] %}
+                    <p>{{ item.feature }} ({{ "%.3f"|format(item.coefficient) }})</p>
+                {% endfor %}
+            {% else %}
+                <p>Not available.</p>
+            {% endif %}
+        </div>
+        <div class="stat-box">
+            <span>Top Negative Churn Drivers</span>
+            {% if metrics.feature_importance and metrics.feature_importance.top_negative %}
+                {% for item in metrics.feature_importance.top_negative[:5] %}
+                    <p>{{ item.feature }} ({{ "%.3f"|format(item.coefficient) }})</p>
+                {% endfor %}
+            {% else %}
+                <p>Not available.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <p><strong>Dataset Path:</strong> {{ metrics.dataset_path }}</p>
+    {% else %}
+    <p>Metrics are not available yet.</p>
+    {% endif %}
+</section>
+
+<section class="card">
+    <h2>Training Run History</h2>
+    {% if training_runs %}
+    <div class="table-scroll">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Timestamp</th>
+                    <th>Dataset</th>
+                    <th>Accuracy</th>
+                    <th>ROC-AUC</th>
+                    <th>Train/Test</th>
+                    <th>Note</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for run in training_runs %}
+                <tr>
+                    <td>{{ run['id'] }}</td>
+                    <td>{{ run['created_at'] }}</td>
+                    <td>{{ run['dataset_path'] }}</td>
+                    <td>{{ "%.2f"|format(run['accuracy'] * 100) }}%</td>
+                    <td>{{ "%.2f"|format(run['roc_auc'] * 100) }}%</td>
+                    <td>{{ run['train_rows'] }}/{{ run['test_rows'] }}</td>
+                    <td>{{ run['note'] or '-' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>No training runs recorded yet.</p>
+    {% endif %}
+</section>
+{% endblock %}
