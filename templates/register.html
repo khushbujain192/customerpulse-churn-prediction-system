@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<section class="card auth-card">
+    <h2>Create Account</h2>
+    <p>Create your login and start using the churn prediction platform.</p>
+
+    <form method="post" action="{{ url_for('register') }}" class="auth-form">
+        <label>Full Name
+            <input type="text" name="full_name" placeholder="Your full name" required>
+        </label>
+
+        <label>Email Address
+            <input type="email" name="email" placeholder="you@example.com" required>
+        </label>
+
+        <label>Password
+            <input type="password" name="password" placeholder="At least 6 characters" required minlength="6">
+        </label>
+
+        <label>Confirm Password
+            <input type="password" name="confirm_password" placeholder="Re-enter password" required minlength="6">
+        </label>
+
+        <button type="submit">Create Account</button>
+    </form>
+
+    <p class="auth-switch">Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+</section>
+{% endblock %}
