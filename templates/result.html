@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Prediction Result{% endblock %}
+{% block content %}
+<section class="card">
+    <h2>Prediction Result</h2>
+    <p class="result {{ 'danger' if prediction == 'Yes' else 'safe' }}">
+        {% if prediction == 'Yes' %}
+            Customer is likely to churn.
+        {% else %}
+            Customer is likely to stay.
+        {% endif %}
+    </p>
+
+    <p><strong>Churn Probability:</strong> {{ probability }}%</p>
+
+    {% if prediction == 'Yes' %}
+    <div class="hint danger-box">
+        Suggested action: prioritize proactive retention (discounts, support callback, better plan offers).
+    </div>
+    {% else %}
+    <div class="hint safe-box">
+        Suggested action: maintain engagement with loyalty and service-quality follow-ups.
+    </div>
+    {% endif %}
+
+    <h3>Submitted Details</h3>
+    <table>
+        <tbody>
+            {% for key, value in payload.items() %}
+            <tr>
+                <th>{{ key.replace('_', ' ').title() }}</th>
+                <td>{{ value }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="form-actions button-row">
+        <a class="button-link" href="{{ url_for('index') }}">Try Another Prediction</a>
+        <a class="button-link secondary" href="{{ url_for('history') }}">View History</a>
+    </div>
+</section>
+{% endblock %}
