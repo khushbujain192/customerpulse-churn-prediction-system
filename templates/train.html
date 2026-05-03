@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Train Model{% endblock %}
+{% block content %}
+<section class="card">
+    <h2>Model Training</h2>
+    <p>Retrain the Logistic Regression model with default or uploaded CSV dataset.</p>
+
+    <form method="post" action="{{ url_for('train_model_view') }}" enctype="multipart/form-data" class="grid-form">
+        <label>Dataset Source
+            <select name="dataset_mode" id="datasetMode" onchange="toggleUploadField()">
+                <option value="default">Use Default Dataset</option>
+                <option value="upload">Upload CSV Dataset</option>
+            </select>
+        </label>
+
+        <label id="uploadField" class="hidden-field">CSV File
+            <input type="file" name="dataset_file" accept=".csv">
+        </label>
+
+        <div class="form-actions">
+            <button type="submit">Start Training</button>
+        </div>
+    </form>
+
+    <p><strong>Default Dataset:</strong> {{ default_dataset }}</p>
+</section>
+
+<section class="card">
+    <h2>Recent Training Runs</h2>
+    {% if training_runs %}
+    <div class="table-scroll">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Timestamp</th>
+                    <th>Dataset</th>
+                    <th>Accuracy</th>
+                    <th>ROC-AUC</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for run in training_runs %}
+                <tr>
+                    <td>{{ run['id'] }}</td>
+                    <td>{{ run['created_at'] }}</td>
+                    <td>{{ run['dataset_path'] }}</td>
+                    <td>{{ "%.2f"|format(run['accuracy'] * 100) }}%</td>
+                    <td>{{ "%.2f"|format(run['roc_auc'] * 100) }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>No training runs yet.</p>
+    {% endif %}
+</section>
+
+<script>
+function toggleUploadField() {
+    const mode = document.getElementById('datasetMode').value;
+    const field = document.getElementById('uploadField');
+    field.style.display = mode === 'upload' ? 'flex' : 'none';
+}
+toggleUploadField();
+</script>
+{% endblock %}
