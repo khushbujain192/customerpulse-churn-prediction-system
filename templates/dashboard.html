@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<section class="card">
+    <h2>Prediction Dashboard</h2>
+
+    <div class="stats-grid">
+        <div class="stat-box">
+            <span>Total Predictions</span>
+            <strong>{{ summary.total_predictions }}</strong>
+        </div>
+        <div class="stat-box">
+            <span>Churn Predictions</span>
+            <strong>{{ summary.churn_count }}</strong>
+        </div>
+        <div class="stat-box">
+            <span>Non-Churn Predictions</span>
+            <strong>{{ summary.non_churn_count }}</strong>
+        </div>
+        <div class="stat-box">
+            <span>Average Churn Probability</span>
+            <strong>{{ summary.avg_probability }}%</strong>
+        </div>
+        <div class="stat-box">
+            <span>Predicted Churn Rate</span>
+            <strong>{{ summary.churn_rate }}%</strong>
+        </div>
+    </div>
+
+    {% if summary.total_predictions > 0 %}
+    <div class="chart-grid">
+        <div class="chart-wrap">
+            <h3>Churn vs Non-Churn</h3>
+            <canvas id="distributionChart"></canvas>
+        </div>
+        <div class="chart-wrap">
+            <h3>Churn by Contract</h3>
+            <canvas id="contractChart"></canvas>
+        </div>
+        <div class="chart-wrap">
+            <h3>Churn by Payment Method</h3>
+            <canvas id="paymentChart"></canvas>
+        </div>
+        <div class="chart-wrap">
+            <h3>Churn by Tenure Bucket</h3>
+            <canvas id="tenureChart"></canvas>
+        </div>
+    </div>
+    {% else %}
+    <p>No prediction data available yet. Submit predictions first.</p>
+    {% endif %}
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const total = {{ summary.total_predictions|tojson }};
+
+if (total > 0) {
+    new Chart(document.getElementById('distributionChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Churn', 'Non-Churn'],
+            datasets: [{
+                data: [{{ summary.churn_count }}, {{ summary.non_churn_count }}],
+                backgroundColor: ['#dc3545', '#198754']
+            }]
+        }
+    });
+
+    new Chart(document.getElementById('contractChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ summary.contract_labels|tojson }},
+            datasets: [{
+                label: 'Churn Count',
+                data: {{ summary.contract_churn_counts|tojson }},
+                backgroundColor: '#0d6efd'
+            }]
+        },
+        options: {scales: {y: {beginAtZero: true, ticks: {precision: 0}}}}
+    });
+
+    new Chart(document.getElementById('paymentChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ summary.payment_labels|tojson }},
+            datasets: [{
+                label: 'Churn Count',
+                data: {{ summary.payment_churn_counts|tojson }},
+                backgroundColor: '#fd7e14'
+            }]
+        },
+        options: {scales: {y: {beginAtZero: true, ticks: {precision: 0}}}}
+    });
+
+    new Chart(document.getElementById('tenureChart'), {
+        type: 'line',
+        data: {
+            labels: {{ summary.tenure_bucket_labels|tojson }},
+            datasets: [{
+                label: 'Churn Count',
+                data: {{ summary.tenure_bucket_counts|tojson }},
+                fill: true,
+                borderColor: '#6f42c1',
+                backgroundColor: 'rgba(111, 66, 193, 0.15)',
+                tension: 0.25
+            }]
+        },
+        options: {scales: {y: {beginAtZero: true, ticks: {precision: 0}}}}
+    });
+}
+</script>
+{% endblock %}
