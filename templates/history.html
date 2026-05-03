@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Prediction History{% endblock %}
+{% block content %}
+<section class="card">
+    <div class="section-head">
+        <h2>Recent Predictions</h2>
+        <a class="button-link secondary" href="{{ url_for('export_history') }}">Download CSV</a>
+    </div>
+
+    {% if rows %}
+    <div class="table-scroll">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Timestamp</th>
+                    <th>Prediction</th>
+                    <th>Probability</th>
+                    <th>Contract</th>
+                    <th>Payment</th>
+                    <th>Tenure</th>
+                    <th>Monthly Charges</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    <td>{{ row['id'] }}</td>
+                    <td>{{ row['created_at'] }}</td>
+                    <td>{{ row['churn_prediction'] }}</td>
+                    <td>{{ "%.2f"|format(row['churn_probability'] * 100) }}%</td>
+                    <td>{{ row['contract_type'] }}</td>
+                    <td>{{ row['payment_method'] }}</td>
+                    <td>{{ row['tenure'] }}</td>
+                    <td>{{ row['monthly_charges'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>No predictions saved yet.</p>
+    {% endif %}
+</section>
+{% endblock %}
