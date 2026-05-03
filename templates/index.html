@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Predict Churn{% endblock %}
+{% block content %}
+<section class="card">
+    <h2>Customer Input Form</h2>
+    <p>Enter customer details to predict whether the customer will churn.</p>
+
+    {% if metrics %}
+    <div class="metrics">
+        <p><strong>Model Accuracy:</strong> {{ "%.2f"|format(metrics.accuracy * 100) }}%</p>
+        <p><strong>Model ROC-AUC:</strong> {{ "%.2f"|format(metrics.roc_auc * 100) }}%</p>
+        <p><strong>Training Rows:</strong> {{ metrics.train_rows }} | <strong>Test Rows:</strong> {{ metrics.test_rows }}</p>
+    </div>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('predict') }}" class="grid-form">
+        <label>Gender
+            <select name="gender">
+                {% for value in choices.gender %}
+                    <option value="{{ value }}" {% if value == defaults.gender %}selected{% endif %}>{{ value }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>Senior Citizen
+            <select name="senior_citizen">
+                <option value="0" {% if defaults.senior_citizen == 0 %}selected{% endif %}>No</option>
+                <option value="1" {% if defaults.senior_citizen == 1 %}selected{% endif %}>Yes</option>
+            </select>
+        </label>
+
+        <label>Partner
+            <select name="partner">
+                {% for value in choices.yes_no %}
+                    <option value="{{ value }}" {% if value == defaults.partner %}selected{% endif %}>{{ value }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>Dependents
+            <select name="dependents">
+                {% for value in choices.yes_no %}
+                    <option value="{{ value }}" {% if value == defaults.dependents %}selected{% endif %}>{{ value }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>Tenure (months)
+            <input type="number" name="tenure" min="1" max="120" value="{{ defaults.tenure }}" required>
+        </label>
+
+        <label>Online Security
+            <select name="online_security">
+                {% for value in choices.yes_no %}
+                    <option value="{{ value }}" {% if value == defaults.online_security %}selected{% endif %}>{{ value }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>Online Backup
+            <select name="online_backup">
+                {% for value in choices.yes_no %}
+                    <option value="{{ value }}" {% if value == defaults.online_backup %}selected{% endif %}>{{ value }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>Tech Support
+            <select name="tech_support">
+                {% for value in choices.yes_no %}
+                    <option value="{{ value }}" {% if value == defaults.tech_support %}selected{% endif %}>{{ value }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>Streaming TV
+            <select name="streaming_tv">
+                {% for value in choices.yes_no %}
+                    <option value="{{ value }}" {% if value == defaults.streaming_tv %}selected{% endif %}>{{ value }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>Streaming Movies
+            <select name="streaming_movies">
+                {% for value in choices.yes_no %}
+                    <option value="{{ value }}" {% if value == defaults.streaming_movies %}selected{% endif %}>{{ value }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>Payment Method
+            <select name="payment_method">
+                {% for value in choices.payment_method %}
+                    <option value="{{ value }}" {% if value == defaults.payment_method %}selected{% endif %}>{{ value }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>Contract Type
+            <select name="contract_type">
+                {% for value in choices.contract_type %}
+                    <option value="{{ value }}" {% if value == defaults.contract_type %}selected{% endif %}>{{ value }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>Paperless Billing
+            <select name="paperless_billing">
+                {% for value in choices.yes_no %}
+                    <option value="{{ value }}" {% if value == defaults.paperless_billing %}selected{% endif %}>{{ value }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>Monthly Charges
+            <input type="number" step="0.01" min="0" name="monthly_charges" value="{{ defaults.monthly_charges }}" required>
+        </label>
+
+        <label>Total Charges
+            <input type="number" step="0.01" min="0" name="total_charges" value="{{ defaults.total_charges }}" required>
+        </label>
+
+        <div class="form-actions">
+            <button type="submit">Predict Churn</button>
+        </div>
+    </form>
+</section>
+
+<section class="card split-card">
+    <div>
+        <h3>REST API</h3>
+        <p>Programmatic prediction endpoint:</p>
+        <code>POST /api/predict</code>
+    </div>
+    <pre class="code-sample"><code>{
+  "gender": "Male",
+  "senior_citizen": 1,
+  "partner": "No",
+  "dependents": "No",
+  "tenure": 5,
+  "online_security": "No",
+  "online_backup": "No",
+  "tech_support": "No",
+  "streaming_tv": "Yes",
+  "streaming_movies": "Yes",
+  "payment_method": "Electronic check",
+  "contract_type": "Month-to-month",
+  "paperless_billing": "Yes",
+  "monthly_charges": 99.5,
+  "total_charges": 497.5
+}</code></pre>
+</section>
+{% endblock %}
